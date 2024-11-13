@@ -43,7 +43,7 @@ const words = [
   "tailwindcss",
   "typescript",
   "vite",
-  "vue-tsc111"
+  "vue-tsc"
 ];
 
 const getMainLabel = computed(
