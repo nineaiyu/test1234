@@ -1,8 +1,11 @@
-FROM node:22.11.0-slim
+FROM nineaiyu/xadmin-client-base:2024 AS stage-build
 
-WORKDIR /app
-RUN corepack enable
-RUN corepack prepare pnpm@9.12.3 --activate
+COPY . .
+RUN pnpm build
 
-COPY .npmrc package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+FROM nginx:stable-alpine as production-stage
+
+COPY --from=stage-build /app/dist /usr/share/nginx/html
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

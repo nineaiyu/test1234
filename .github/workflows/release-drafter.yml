@@ -1,9 +1,9 @@
+name: Create Release And Upload assets
+
 on:
   push:
     tags:
       - 'v*'
-
-name: Create Release And Upload assets
 
 jobs:
   create-release:

@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Lock Pull Request
-        run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -d '{"state":"pending", "description":"Action running, merge disabled", "context":"Lock PR"}' \
-          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -51,9 +46,3 @@ jobs:
           file: Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Unlock Pull Request
-        run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -d '{"state":"success", "description":"Action running, merge disabled", "context":"Lock PR"}' \
-          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}"
