@@ -1,4 +1,4 @@
-FROM nineaiyu/xadmin-client-base:20241113_091144 AS stage-build
+FROM nineaiyu/test1234-base:20241113_092309 AS stage-build
 
 COPY . .
 RUN pnpm build
