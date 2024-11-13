@@ -56,7 +56,7 @@ jobs:
         with:
           draft: true
           files: |
-            xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz
-            xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz.md5
+            ${{ env.REPO }}-${{ steps.get_version.outputs.TAG }}.tar.gz
+            ${{ env.REPO }}-${{ steps.get_version.outputs.TAG }}.tar.gz.md5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
