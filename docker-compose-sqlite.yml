@@ -23,7 +23,6 @@ services:
       retries: 3
       start_period: 10s
 
-
   xadmin-server:
     container_name: xadmin-server
     restart: always
