@@ -1,4 +1,4 @@
-FROM nineaiyu/test1234-base:20241113_121253
+FROM nineaiyu/test1234-base:20241113_152306
 
 WORKDIR /data/xadmin-server/
 
