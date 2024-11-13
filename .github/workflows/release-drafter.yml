@@ -36,9 +36,13 @@ jobs:
           corepack enable
           corepack prepare pnpm@9.12.3 --activate
           pnpm install --frozen-lockfile
+
+      - name: Remove 'v' prefix from tag
+        run: echo "TAG=$(echo ${{ steps.get_version.outputs.TAG }} | sed 's/^v//')" >> $GITHUB_ENV
       - name: Build web
         run: |
-          sed -i "s@\"Version\": .*@\"Version\": \"${{ steps.get_version.outputs.TAG }}\",@" public/platform-config.json
+          sed -i "s@\"Version\": .*@\"Version\": \"${{ env.TAG }}\",@" public/platform-config.json
+          sed -i "s@\"version\": .*@\"version\": \"${{ env.TAG }}\",@" package.json
           pnpm build
       - name: Create Upload Assets
         run: |
