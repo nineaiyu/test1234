@@ -1,0 +1,57 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+name: Create Release And Upload assets
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get version
+        id: get_version
+        run: |
+          TAG=$(basename ${GITHUB_REF})
+          echo "::set-output name=TAG::$TAG"
+      - name: Create Release
+        id: create_release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-name: release-config.yml
+          version: ${{ steps.get_version.outputs.TAG }}
+          tag: ${{ steps.get_version.outputs.TAG }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '22.11.0'
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.12.3 --activate
+          pnpm install --frozen-lockfile
+      - name: Build web
+        run: |
+          sed -i "s@\"Version\": .*@\"Version\": \"${{ steps.get_version.outputs.TAG }}\",@" public/platform-config.json
+          pnpm build
+      - name: Create Upload Assets
+        run: |
+          mv dist xadmin-client-${{ steps.get_version.outputs.TAG }}
+          tar -czf xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz xadmin-client-${{ steps.get_version.outputs.TAG }}
+          echo $(md5sum xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz | awk '{print $1}') > xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz.md5
+      - name: Release Upload Assets
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: |
+            xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz
+            xadmin-client-${{ steps.get_version.outputs.TAG }}.tar.gz.md5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
