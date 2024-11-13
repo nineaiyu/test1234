@@ -2,13 +2,8 @@ name: Build and Push Image
 
 on:
   push:
-    branches:
-      - 'main'
-      - 'dev'
-    paths:
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'Dockerfile'
+    tags:
+      - 'v*' # 监听以v开头的tag，例如v1.0.0
 
 jobs:
   build-and-push:
@@ -39,13 +34,20 @@ jobs:
         id: repo
         run: echo "REPO=$(basename ${{ github.repository }})" >> $GITHUB_ENV
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: nineaiyu/xadmin-test1234
+
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           file: Dockerfile
-          tags: nineaiyu/${{ env.REPO }}:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
 #      - name: Unlock Pull Request
 #        run: |
