@@ -1,58 +1,51 @@
-# xadmin-client
+# xadmin-server
 
-xadmin-基于 Django+vue3 的 rbac 权限管理系统
+xadmin-基于Django+vue3的rbac权限管理系统
 
-基于 [vue-pure-admin](https://github.com/pure-admin/vue-pure-admin) 二次开发
-
-Django 做后端服务
-[xadmin-server](https://github.com/nineaiyu/xadmin-server)
+前端 [xadmin-client](https://github.com/nineaiyu/xadmin-client)
 
 ### 在线预览
 
 [https://xadmin.dvcloud.xin/](https://xadmin.dvcloud.xin/)
 账号密码：admin/admin123
 
-## 开发文档
+## 开发部署文档
 
 [https://docs.dvcloud.xin/](https://docs.dvcloud.xin/)
 
-## docker 构建
+## [Centos 9 Stream 安装部署](https://docs.dvcloud.xin/guide/installation-local.html)
 
-修改 api 配置文件`.env.production`，将 api 域名修改为自己服务器，然后进行构建
+## [Docker 容器化部署](https://docs.dvcloud.xin/guide/installation-docker.html)
+
+# 附录
+
+⚠️ Windows上面无法正常运行celery flower，导致任务监控无法正常使用，请使用Linux环境开发部署
+
+## 启动程序(启动之前必须配置好Redis和数据库)
+
+### A.一键执行命令【不支持windows平台，如果是Windows，请使用 手动执行命令】
 
 ```shell
-docker compose up xadmin-client-build
+python manage.py start all -d  # -d 参数是后台运行，如果去掉，则前台运行
 ```
 
-### docker 启动
+### B.手动执行命令
+
+#### 1.api服务
 
 ```shell
-docker compose up xadmin-client-prod
+python manage.py runserver 0.0.0.0:8896
 ```
 
-然后浏览器 http://localhost:8891 进行访问
+#### 2.定时任务
 
-# 本地开发运行，记得在`vite.config.ts` 添加proxy代理，要不然无法访问api服务
+```shell
+python -m celery -A server beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler --max-interval 60
+python -m celery -A server worker -P threads -l INFO -c 10 -Q celery --heartbeat-interval 10 -n celery@%h --without-mingle
+```
 
-```ts
-      proxy: {
-        "/api": {
-          target: "http://127.0.0.1:8896",
-          changeOrigin: true,
-          rewrite: path => path
-        },
-        "/media": {
-          target: "http://127.0.0.1:8896",
-          changeOrigin: true,
-          rewrite: path => path
-        },
-        "/ws": {
-          target: "ws://127.0.0.1:8896"
-        },
-        "/api-docs": {
-          target: "http://127.0.0.1:8896",
-          changeOrigin: true,
-          rewrite: path => path
-        }
-      },
+#### 3.任务监控，在windows无需执行，因为Windows平台无法正常运行
+
+```shell
+python -m celery -A server flower -logging=info --url_prefix=api/flower --auto_refresh=False  --address=0.0.0.0 --port=5566
 ```

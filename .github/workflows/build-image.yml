@@ -46,3 +46,18 @@ jobs:
           file: Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Update docker-compose.yml
+        run: |
+          sed -i 's@image: nineaiyu/${{ env.REPO }}.*@nineaiyu/${{ env.REPO }}:${{ env.IMAGE_TAG }}@' docker-compose.yml
+          sed -i 's@image: nineaiyu/${{ env.REPO }}.*@nineaiyu/${{ env.REPO }}:${{ env.IMAGE_TAG }}@' docker-compose-sqlite.yml
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docker-compose.yml docker-compose-sqlite.yml
+          git commit -m "perf: Update docker-compose.yml with new image tag"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,9 +1,32 @@
-FROM node:22.11.0-slim
+FROM python:3.12.7-slim
 
-WORKDIR /app
-RUN corepack enable
-RUN corepack prepare pnpm@9.12.3 --activate
+# Install APT dependencies
+ARG DEPENDENCIES="                    \
+        curl                          \
+        g++                           \
+        make                          \
+        pkg-config                    \
+        libmariadb-dev                \
+        gettext
 
-COPY .npmrc package.json pnpm-lock.yaml ./
+ARG APT_MIRROR=http://deb.debian.org
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=core \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked,id=core \
+    set -ex \
+    && rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
+    && sed -i "s@http://.*.debian.org@${APT_MIRROR}@g" /etc/apt/sources.list \
+    && apt-get update > /dev/null \
+    && apt-get -y install --no-install-recommends ${DEPENDENCIES} \
+    && echo "no" | dpkg-reconfigure dash
+
+
+# install pip
+WORKDIR /opt/
+
+ARG PIP_MIRROR=https://pypi.org/simple
+
+COPY requirements.txt requirements.txt
+RUN pip install -U setuptools pip --ignore-installed -i ${PIP_MIRROR}  \
+    && pip install --no-cache-dir -r requirements.txt -i ${PIP_MIRROR}
