@@ -3,18 +3,13 @@ name: Build and Push Image
 on:
   push:
     tags:
-      - 'v*' # 监听以v开头的tag，例如v1.0.0
+      - 'v*'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      #      - name: Lock Pull Request
-      #        run: |
-      #          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-      #          -d '{"state":"pending", "description":"Action running, merge disabled", "context":"Lock PR"}' \
-      #          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}"
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -38,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: nineaiyu/xadmin-test1234
+          images: nineaiyu/${{ env.REPO }}
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
@@ -49,8 +44,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-#      - name: Unlock Pull Request
-#        run: |
-#          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-#          -d '{"state":"success", "description":"Action running, merge disabled", "context":"Lock PR"}' \
-#          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}"
