@@ -29,11 +29,16 @@ jobs:
         id: repo
         run: echo "REPO=$(basename ${{ github.repository }})" >> $GITHUB_ENV
 
+      - name: Remove 'v' prefix from tag
+        id: tag
+        run: echo "TAG=$(echo ${{ github.ref }} | sed 's/^v//')" >> $GITHUB_ENV
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: nineaiyu/${{ env.REPO }}
+          tags: ${{ env.TAG }}
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
@@ -41,6 +46,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: Dockerfile
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: nineaiyu/${{ env.REPO }}:${{ env.TAG }}
           labels: ${{ steps.meta.outputs.labels }}
-
