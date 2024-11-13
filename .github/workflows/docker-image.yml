@@ -35,8 +35,6 @@ jobs:
         with:
           images: nineaiyu/${{ env.REPO }}
           tags: |
-            type=ref,event=tag
-            type=sha,format=long
             type=semver,pattern={{version}}
 
       - name: Build and push multi-arch image
