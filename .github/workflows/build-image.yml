@@ -54,8 +54,8 @@ jobs:
 
       - name: Update docker-compose.yml
         run: |
-          sed -i 's@image: nineaiyu/.*@image: nineaiyu/${{ env.REPO }}:${{ env.IMAGE_TAG }}@' docker-compose.yml
-          sed -i 's@image: nineaiyu/.*@image: nineaiyu/${{ env.REPO }}:${{ env.IMAGE_TAG }}@' docker-compose-sqlite.yml
+          sed -i 's@image: nineaiyu/.*@image: nineaiyu/${{ env.REPO }}:${{ env.VERSION }}@' docker-compose.yml
+          sed -i 's@image: nineaiyu/.*@image: nineaiyu/${{ env.REPO }}:${{ env.VERSION }}@' docker-compose-sqlite.yml
 
       - name: Commit changes
         run: |
