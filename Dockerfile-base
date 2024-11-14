@@ -27,7 +27,7 @@ WORKDIR /data/
 
 ARG PIP_MIRROR=https://pypi.org/simple
 
-RUN --mount=type=cache,target=/root/.cache \
+RUN --mount=type=cache,target=/root/.cache,id=core \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     set -ex \
     && python3 -m venv /data/py3 \

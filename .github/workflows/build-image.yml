@@ -7,6 +7,7 @@ on:
       - 'dev'
     paths:
       - 'Dockerfile'
+      - 'server/const.py'
 
 jobs:
   build-and-push-image:
@@ -30,7 +31,9 @@ jobs:
 
       - name: Extract repository name
         id: repo
-        run: echo "REPO=$(basename ${{ github.repository }})" >> $GITHUB_ENV
+        run: |
+          echo "REPO=$(basename ${{ github.repository }})" >> $GITHUB_ENV
+          echo VERSION=$(grep "VERSION " server/const.py | sed "s/.*VERSION = ['|\"]\(.*\)['|\"].*/\1/") >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -38,7 +41,7 @@ jobs:
         with:
           images: nineaiyu/${{ env.REPO }}
           tags: |
-            type=semver,pattern={{version}}
+            type=semver,pattern={{version}}, value=${{ env.VERSION }}
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
