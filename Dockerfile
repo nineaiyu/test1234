@@ -15,6 +15,7 @@ RUN set -ex \
     && export SECRET_KEY=$(head -c100 < /dev/urandom | base64 | tr -dc A-Za-z0-9 | head -c 48)
 
 FROM python:3.12.7-slim
+
 ENV LANG=en_US.UTF-8 \
     PATH=/data/py3/bin:$PATH
 
@@ -24,7 +25,7 @@ ARG DEPENDENCIES="                    \
         libmariadb-dev"
 
 RUN set -ex \
-    && sed -i "s@http://.*.debian.org@${APT_MIRROR}@g" /etc/apt/sources.list \
+    && sed -i "s@http://.*.debian.org@${APT_MIRROR}@g" /etc/apt/sources.list.d/debian.sources \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && apt-get update > /dev/null \
     && apt-get -y install --no-install-recommends ${DEPENDENCIES} \
