@@ -6,7 +6,6 @@ ARG DEPENDENCIES="                    \
         g++                           \
         make                          \
         pkg-config                    \
-        libmariadb-dev                \
         gettext"
 
 ARG APT_MIRROR=http://deb.debian.org
@@ -23,10 +22,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=core \
 
 
 # install pip
-WORKDIR /opt/
+WORKDIR /data/
 
 ARG PIP_MIRROR=https://pypi.org/simple
 
-COPY requirements.txt requirements.txt
-RUN pip install -U setuptools pip --ignore-installed -i ${PIP_MIRROR}  \
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    set -ex \
+    && python3 -m venv /data/py3 \
+    && . /data/py3/bin/activate \
+    && pip install -U setuptools pip --ignore-installed -i ${PIP_MIRROR}  \
     && pip install --no-cache-dir -r requirements.txt -i ${PIP_MIRROR}
