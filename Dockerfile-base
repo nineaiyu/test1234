@@ -6,7 +6,7 @@ ARG DEPENDENCIES="                    \
         g++                           \
         make                          \
         pkg-config                    \
-        libmariadb                    \
+        libmariadb-dev                \
         gettext"
 
 ARG APT_MIRROR=http://deb.debian.org
